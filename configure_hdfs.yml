@@ -35,6 +35,15 @@
         owner: "{{ hadoop_user }}"
         group: "{{ hadoop_group }}"
         mode: 0755
+        
+    - name: Check if NameNode is already formatted
+      stat:
+        path: "{{ hdfs_namenode_dir }}/current/VERSION"
+      register: namenode_version_file
+
+    - name: Format the NameNode (only if not already formatted)
+      command: "{{ hadoop_home }}/bin/hdfs namenode -format"
+      when: not namenode_version_file.stat.exists
 
     - name: Start NameNode service
       shell: "{{ hadoop_home }}/sbin/hadoop-daemon.sh start namenode"
