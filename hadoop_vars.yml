@@ -1,0 +1,8 @@
+hadoop_version: "3.4.0"
+hadoop_user: "hadoop"
+hadoop_group: "hadoop"
+hadoop_home: "/opt/hadoop"
+java_home: "/usr/lib/jvm/java-11-openjdk-amd64"
+hdfs_namenode_dir: "/data/hadoop/hdfs/namenode"
+hdfs_datanode_dir: "/data/hadoop/hdfs/datanode"
+namenode_host: "namenode.example.com"

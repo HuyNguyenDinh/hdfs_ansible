@@ -1,0 +1,69 @@
+---
+- hosts: all
+  become: yes
+  vars_files:
+    - hadoop_vars.yml
+
+  tasks:
+    - name: Update and install required packages
+      apt:
+        update_cache: yes
+        name:
+          - openjdk-11-jdk
+          - openssh-server
+          - rsync
+        state: present
+
+    - name: Create Hadoop group
+      group:
+        name: "{{ hadoop_group }}"
+        state: present
+
+    - name: Create Hadoop user
+      user:
+        name: "{{ hadoop_user }}"
+        group: "{{ hadoop_group }}"
+        create_home: yes
+        shell: /bin/bash
+        state: present
+
+    - name: Add Hadoop user to sudoers
+      lineinfile:
+        path: /etc/sudoers
+        line: "{{ hadoop_user }} ALL=(ALL) NOPASSWD:ALL"
+        validate: 'visudo -cf %s'
+
+    - name: Download Hadoop binaries
+      get_url:
+        url: "https://downloads.apache.org/hadoop/common/hadoop-{{ hadoop_version }}/hadoop-{{ hadoop_version }}.tar.gz"
+        dest: "/tmp/hadoop-{{ hadoop_version }}.tar.gz"
+
+    - name: Extract Hadoop binaries
+      unarchive:
+        src: "/tmp/hadoop-{{ hadoop_version }}.tar.gz"
+        dest: "/opt"
+        remote_src: yes
+        creates: "/opt/hadoop-{{ hadoop_version }}"
+
+    - name: Create symlink for Hadoop
+      file:
+        src: "/opt/hadoop-{{ hadoop_version }}"
+        dest: "{{ hadoop_home }}"
+        state: link
+
+    - name: Set Hadoop environment variables
+      copy:
+        dest: /etc/profile.d/hadoop.sh
+        content: |
+          export HADOOP_HOME={{ hadoop_home }}
+          export PATH=$PATH:$HADOOP_HOME/bin:$HADOOP_HOME/sbin
+          export JAVA_HOME={{ java_home }}
+      mode: 0755
+
+    - name: Create Hadoop directories
+      file:
+        path: "{{ hadoop_home }}"
+        state: directory
+        owner: "{{ hadoop_user }}"
+        group: "{{ hadoop_group }}"
+        mode: 0755
