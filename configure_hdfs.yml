@@ -1,4 +1,27 @@
 ---
+- hosts: all
+  become: yes
+  vars_files:
+    - hadoop_vars.yml
+
+  tasks:
+    - name: Configure core-site.xml on each node
+      template:
+        src: templates/core-site.xml.j2
+        dest: "{{ hadoop_home }}/etc/hadoop/core-site.xml"
+        owner: "{{ hadoop_user }}"
+        group: "{{ hadoop_group }}"
+        mode: 0644
+
+    - name: Configure hdfs-site.xml on each node
+      template:
+        src: templates/hdfs-site.xml.j2
+        dest: "{{ hadoop_home }}/etc/hadoop/hdfs-site.xml"
+        owner: "{{ hadoop_user }}"
+        group: "{{ hadoop_group }}"
+        mode: 0644
+
+
 - hosts: namenode
   become: yes
   vars_files:
@@ -12,25 +35,6 @@
         owner: "{{ hadoop_user }}"
         group: "{{ hadoop_group }}"
         mode: 0755
-
-    - name: Configure core-site.xml on NameNode
-      template:
-        src: templates/core-site.xml.j2
-        dest: "{{ hadoop_home }}/etc/hadoop/core-site.xml"
-        owner: "{{ hadoop_user }}"
-        group: "{{ hadoop_group }}"
-        mode: 0644
-
-    - name: Configure hdfs-site.xml on NameNode
-      template:
-        src: templates/hdfs-site.xml.j2
-        dest: "{{ hadoop_home }}/etc/hadoop/hdfs-site.xml"
-        owner: "{{ hadoop_user }}"
-        group: "{{ hadoop_group }}"
-        mode: 0644
-
-    - name: Format the NameNode
-      command: "{{ hadoop_home }}/bin/hdfs namenode -format"
 
     - name: Start NameNode service
       shell: "{{ hadoop_home }}/sbin/hadoop-daemon.sh start namenode"
@@ -50,22 +54,6 @@
         owner: "{{ hadoop_user }}"
         group: "{{ hadoop_group }}"
         mode: 0755
-
-    - name: Configure core-site.xml on DataNodes
-      template:
-        src: templates/core-site.xml.j2
-        dest: "{{ hadoop_home }}/etc/hadoop/core-site.xml"
-        owner: "{{ hadoop_user }}"
-        group: "{{ hadoop_group }}"
-        mode: 0644
-
-    - name: Configure hdfs-site.xml on DataNodes
-      template:
-        src: templates/hdfs-site.xml.j2
-        dest: "{{ hadoop_home }}/etc/hadoop/hdfs-site.xml"
-        owner: "{{ hadoop_user }}"
-        group: "{{ hadoop_group }}"
-        mode: 0644
 
     - name: Start DataNode service
       shell: "{{ hadoop_home }}/sbin/hadoop-daemon.sh start datanode"
