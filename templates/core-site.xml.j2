@@ -2,7 +2,17 @@
 <?xml-stylesheet type="text/xsl" href="configuration.xsl"?>
 <configuration>
   <property>
-    <name>fs.defaultFS</name>
-    <value>hdfs://{{ namenode_host }}:9000</value>
+    <name>dfs.nameservices</name>
+    <value>{{ nameservices }}</value>
   </property>
+  {% for namenode in namenode_hosts %}
+  <property>
+    <name>dfs.namenode.rpc-address.{{ namenode.nameservice }}</name>
+    <value>{{ namenode.host }}: {{ namenode.port}} </value>
+  </property>
+  <property>
+    <name>dfs.namenode.http-address.ns1</name>
+    <value>nn-host1:http-port</value>
+  </property>
+  {% endfor %}
 </configuration>

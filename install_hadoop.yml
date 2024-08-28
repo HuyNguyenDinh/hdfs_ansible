@@ -58,12 +58,32 @@
           export HADOOP_HOME={{ hadoop_home }}
           export PATH=$PATH:$HADOOP_HOME/bin:$HADOOP_HOME/sbin
           export JAVA_HOME={{ java_home }}
-      mode: 0755
+        mode: 0755
 
     - name: Create Hadoop directories
       file:
         path: "{{ hadoop_home }}"
         state: directory
+        owner: "{{ hadoop_user }}"
+        group: "{{ hadoop_group }}"
+        mode: 0755
+      
+    - name: Ensure JAVA_HOME is set in hadoop-env.sh
+      lineinfile:
+        path: "{{ hadoop_home }}/etc/hadoop/hadoop-env.sh"
+        regexp: '^export JAVA_HOME='
+        line: "export JAVA_HOME={{ java_home }}"
+        create: yes
+        owner: "{{ hadoop_user }}"
+        group: "{{ hadoop_group }}"
+        mode: 0755
+
+    - name: Ensure HADOOP_HOME is set in hadoop-env.sh
+      lineinfile:
+        path: "{{ hadoop_home }}/etc/hadoop/hadoop-env.sh"
+        regexp: '^export HADOOP_HOME='
+        line: "export HADOOP_HOME={{ hadoop_home }}"
+        create: yes
         owner: "{{ hadoop_user }}"
         group: "{{ hadoop_group }}"
         mode: 0755
